@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TITA 管理</title>
+<style>
+:root{color-scheme:dark;--bg:#090d12;--panel:#141c25;--line:#2b3b4c;--muted:#afc0d0;--accent:#7ee7f2}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:17px/1.65 system-ui,-apple-system,sans-serif}header,main{max-width:1060px;margin:auto;padding:24px}header{padding-bottom:14px}h1{font-size:30px;line-height:1.2;margin:0 0 16px}h2{font-size:23px;margin:0 0 12px}h3{font-size:19px;margin:0 0 10px}p{margin:8px 0 14px}.muted,small{color:var(--muted)}.connection{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.badge{border:1px solid var(--line);border-radius:22px;padding:5px 13px;color:var(--accent)}nav{position:sticky;top:0;z-index:2;background:#090d12ed;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}.tabs{display:flex;max-width:1060px;margin:auto;overflow:auto;padding:0 24px;gap:12px}.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;white-space:nowrap;padding:14px 8px;color:var(--muted)}.tabs button[aria-selected=true]{color:var(--accent);border-color:var(--accent)}button,input,select{font:inherit;color:inherit}button{background:#253443;border:1px solid #4a657b;border-radius:10px;padding:9px 16px;cursor:pointer;min-height:44px}button:hover{border-color:var(--accent)}button:disabled{opacity:.5;cursor:default}button.primary{background:#8feaf2;color:#071217;border-color:#8feaf2;font-weight:700}button[aria-pressed=true]{border-color:var(--accent)}input,select{background:#0b121a;border:1px solid #53677b;border-radius:8px;padding:8px;max-width:100%;min-height:44px}input[type=number]{width:100px}input[type=checkbox]{min-height:24px;width:22px;vertical-align:middle}input[type=range]{width:220px}label{display:inline-flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 12px 6px 0}section[hidden]{display:none}.card{border:1px solid var(--line);border-radius:16px;padding:22px;margin:0 0 20px;background:var(--panel)}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.metric{padding:16px;background:#0d151e;border-radius:12px;overflow-wrap:anywhere}.metric span{display:block;color:var(--muted);font-size:15px}.metric strong{font-size:30px;line-height:1.5}.summary{white-space:pre-wrap;overflow-wrap:anywhere}details{margin-top:16px}summary{cursor:pointer;color:var(--accent)}pre{font:14px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto}.actions{margin-bottom:20px}.network{display:grid;grid-template-columns:1fr 1fr 100px auto;gap:10px;padding:16px 0;border-top:1px solid var(--line)}.network label{display:flex;margin:0;align-items:stretch;flex-direction:column;gap:3px}.network label span{font-size:14px;color:var(--muted)}#feedback{position:sticky;bottom:8px;margin:0;background:#192b38;border:1px solid #56788c;border-radius:12px;padding:12px 16px;white-space:pre-wrap;overflow-wrap:anywhere}#feedback:empty{display:none}:focus-visible{outline:3px solid #8feaf2;outline-offset:3px}@media(max-width:660px){header,main{padding:18px}.tabs{padding:0 12px;gap:8px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:16px}.network{grid-template-columns:1fr 100px}.network label:first-child,.network label:nth-child(2){grid-column:1/-1}.metric strong{font-size:26px}.connection input{width:100%}}
+</style>
+<header><h1>TITA 管理</h1><p id="httpshint" class="muted"></p><div class="connection"><span class="badge" id="connection">未连接</span><span id="current" class="muted">设备页面 --</span><span id="updated" class="muted">尚未读取</span></div><p id="offlineStatus" class="summary">公网蓝牙管理入口</p><p id="connectstatus" role="status" aria-live="polite" class="summary"></p><details id="connectpanel"><summary>连接设备</summary><p>iPhone 请用 Bluefy 打开本页面，输入 TITA 管理密码后点击蓝牙连接，选择 TITA Monitor。设备须在附近并已通电。</p><div class="connection"><input id="key" type="password" autocomplete="current-password" placeholder="TITA 管理密码" aria-label="TITA 管理密码"><button class="primary" id="connect">蓝牙连接</button><button id="disconnect">断开蓝牙</button></div><p>本页通过 BLE 直接读写附近的 TITA；不向托管网站发送管理密码、Wi-Fi 信息或设备状态。</p><p class="muted">密码仅保存在当前页面内存。蓝牙读写要求加密连接；首次可能出现系统配对提示。</p></details></header>
+<nav aria-label="页面"><div class="tabs" role="tablist"><button role="tab" id="tab-system" aria-controls="system" aria-selected="true" tabindex="0" data-tab="system">系统</button><button role="tab" id="tab-vehicle" aria-controls="vehicle" aria-selected="false" tabindex="-1" data-tab="vehicle">车辆</button><button role="tab" id="tab-iphone" aria-controls="iphone" aria-selected="false" tabindex="-1" data-tab="iphone">iPhone / 音乐</button><button role="tab" id="tab-carplay" aria-controls="carplay" aria-selected="false" tabindex="-1" data-tab="carplay">CarPlay</button><button role="tab" id="tab-local" aria-controls="local" aria-selected="false" tabindex="-1" data-tab="local">TITA 本机</button><button role="tab" id="tab-other" aria-controls="other" aria-selected="false" tabindex="-1" data-tab="other">其他</button></div></nav>
+<main>
+<section id="system" role="tabpanel" aria-labelledby="tab-system"><div class="actions"><button data-page="0">在 TITA 上显示系统页</button></div><div class="card"><h2>系统概览</h2><p id="systemfresh" class="muted">等待设备数据</p><div class="grid" id="systemmetrics"></div></div><div class="card"><h2>树莓派网络</h2><p class="summary" id="networkdetail">尚未读取</p><p class="muted">PHY 是无线协商速率；流量方向以树莓派为准。以太网速率不是互联网速度。</p><button id="reconnect">重连树莓派 BLE</button><details><summary>原始诊断</summary><pre id="raw-system"></pre></details></div></section>
+<section id="vehicle" role="tabpanel" aria-labelledby="tab-vehicle" hidden><div class="actions"><button data-page="1">在 TITA 上显示车辆页</button></div><div class="card"><h2>车辆数据</h2><p id="vehiclesource">等待设备确认数据源</p><div class="grid" id="vehiclemetrics"></div></div></section>
+<section id="iphone" role="tabpanel" aria-labelledby="tab-iphone" hidden><div class="actions"><button data-page="2">在 TITA 上显示 iPhone 页</button></div><div class="card"><h2>iPhone 连接与通知</h2><p class="summary" id="phonestatus">尚未读取</p><button id="pair">开启 120 秒配对窗口</button><p class="muted">配对窗口开启后，在 iPhone 蓝牙设置选择 TITA-IPHONE 并允许通知。</p><label><input id="notify" type="checkbox">显示通知浮层</label><label>时长 <input id="seconds" type="number" min="5" max="60" value="20"> 秒</label><button id="savephone" class="primary">保存通知设置</button><details><summary>连接诊断</summary><pre id="raw-phone"></pre></details></div><div class="card"><h2>音乐与封面</h2><p class="summary" id="musicstatus">尚未读取</p><label><input id="cover" type="checkbox">允许在线获取专辑封面</label><button id="savecover" class="primary">保存封面设置</button><p class="muted">开启后可能产生联网流量。关闭立即恢复默认封面，设置重启保留。</p><div id="uploadbox" hidden><input id="coverfile" type="file" accept="image/jpeg,image/png" aria-label="本地封面"><button id="upload">上传当前曲目封面</button><p class="muted">本地封面上传需通过 TITA 热点或局域网页面；仅当前曲目有效。</p></div><details><summary>音乐诊断</summary><pre id="raw-music"></pre></details></div></section>
+<section id="carplay" role="tabpanel" aria-labelledby="tab-carplay" hidden><div class="actions"><button data-page="3">在 TITA 上显示 CarPlay 页</button></div><div class="card"><h2>CarPlay 状态</h2><p id="cpstate">尚未读取</p><div class="grid" id="cpmetrics"></div><p class="muted">RENDER FPS 为浏览器绘制回调统计，TX DROP 为服务器发送丢弃；不代表物理屏幕 FPS 或端到端延迟。过期数据显示 --。</p><details><summary>原始诊断</summary><pre id="raw-carplay"></pre></details></div><div class="card"><h2>显示与预警</h2><label><input id="arcs" type="checkbox">性能弧</label><label><input id="trend" type="checkbox">60 秒趋势</label><p><label>FPS 目标 <select id="target"><option value="0">未知，不评估</option><option value="30">手动 30，需校准</option><option value="60">手动 60，需校准</option></select></label></p><label>预警比例 % <input id="warn" type="number" min="1" max="100" value="80"></label><label>严重比例 % <input id="bad" type="number" min="1" max="99" value="60"></label><label>连续窗口 <input id="windows" type="number" min="1" max="10" value="3"></label><p class="muted">每个统计窗口约 10 秒。手动目标与预警阈值需实车校准。</p><button id="savecp" class="primary">保存 CarPlay 设置</button></div></section>
+<section id="local" role="tabpanel" aria-labelledby="tab-local" hidden><div class="actions"><button data-page="4">在 TITA 上显示本机页</button></div><div class="card"><h2>TITA 自身网络</h2><button id="openhotspot">临时开启管理热点（保留局域网）</button><p class="summary" id="localnetwork">尚未读取</p><p class="summary" id="localurls"></p><p class="muted">HTTP 入口需与 TITA 同一局域网。热点 HTTPS 入口需先连接 TITA 热点；热点关闭时该入口不可用。已连接 Wi-Fi 不代表互联网可用。</p></div><div class="card"><h2>本机蓝牙</h2><p class="summary" id="localble">尚未读取</p></div><div class="card"><h2>本机资源</h2><div class="grid" id="localmetrics"></div><p class="summary" id="localdetails"></p><p class="muted">CPU 为双核非空闲任务的 2 秒 tick 采样估算；非精确周期计时，周期任务可能有采样偏差，ISR 时间归入被中断的任务。未取得有效采样时显示 --。</p><details><summary>本机原始诊断</summary><pre id="raw-local"></pre></details></div></section>
+<section id="other" role="tabpanel" aria-labelledby="tab-other" hidden><div class="card"><h2>TITA 无线局域网</h2><p class="summary" id="wifistatus">尚未读取</p><p class="muted">最多保存 10 个 2.4GHz 网络。优先级 1 最高，同级优先上次成功网络；失败尝试下一项，120 秒未连接恢复热点。连网稳定 30 秒且手机离开后才关闭热点。密码在设备明文保存，留空表示开放网络。</p><div id="networks"></div><div class="row"><button id="addnetwork">新增网络</button><label><input id="showpassword" type="checkbox">显示密码</label><button id="savewifi" class="primary">保存网络列表</button></div><p id="wifidirty" class="muted"></p></div><div class="card"><h2>显示与切页</h2><label>亮度 <input id="brightness" type="range" min="1" max="16" value="8"></label><button id="savebrightness">保存亮度</button><p><label><input id="automatic" type="checkbox">自动轮播</label><label>间隔 <input id="interval" type="number" min="5" max="300" value="30"> 秒</label><button id="saveview">保存轮播设置</button></p><p class="muted">浏览管理页 Tab 不切换设备屏幕；使用各 Tab 内的“在 TITA 上显示”按钮切屏并保存。</p></div><div class="card"><h2>双拍切页</h2><p id="clapstatus">尚未读取</p><div class="row"><button data-clap="on">开启并保存</button><button data-clap="off">关闭并保存</button><button data-clap="calibrate">重新校准</button></div><p class="muted">开启后请安静 3 秒。连续两拍间隔约 0.2–0.8 秒，触发后冷却 4 秒。</p></div><div class="card"><h2>麦克风诊断</h2><p class="summary" id="micstatus">尚未读取</p><div class="row"><button data-mic="start">开始 60 秒采音</button><button data-mic="stop">停止诊断采音</button></div><p class="muted">仅处理信号统计，不保存录音。停止诊断不会关闭已开启的双拍或音乐采样。</p></div><div class="card"><h2>版本与维护</h2><p class="summary" id="version">尚未读取</p><p>当前单个 3MiB 应用分区，固件更新使用电脑 USB。</p></div></section>
+<div id="feedback" role="status" aria-live="polite"></div>
+</main>
+<script>/* Shared by the hosted page and firmware-embedded page. No dependencies. */
+class BleTransport {
+ constructor(){this.queue=Promise.resolve();this.id=0;this.key='';this.device=null;}
+ static decode(packet,id,index){
+  if(packet.length<6)throw Error('等待设备回执');
+  const u=n=>packet[n]|packet[n+1]<<8;
+  if(u(0)!==id)throw Error('Wrong request');if(u(2)!==index)throw Error('Wrong chunk');
+  const total=u(4),offset=index*14;
+  if(!total||total>8192||offset>=total||packet.length-6!==Math.min(14,total-offset))throw Error('Invalid length');
+  return {total,bytes:packet.slice(6)};
+ }
+ async stage(label,work,timeout=15000){
+  this.progress(label);let timer;
+  try{return await Promise.race([Promise.resolve().then(work),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('超时')),timeout);})]);}
+  catch(e){throw Error(label+'：'+(e?.message||String(e)));}
+  finally{clearTimeout(timer);}
+ }
+ async connect(key,progress=()=>{}){
+  if(!navigator.bluetooth)throw Error('请在 iPhone Bluefy 或支持 Web Bluetooth 的浏览器打开 HTTPS 页面');
+  this.progress=progress;this.key=key;
+  this.progress('请选择 TITA Monitor');
+  this.device=await navigator.bluetooth.requestDevice({filters:[{services:['c7252000-5a6b-4c8d-9e0f-123456789abc']},{namePrefix:'TITA-'}],optionalServices:['c7252000-5a6b-4c8d-9e0f-123456789abc']});
+  try{
+   const gatt=await this.stage('连接设备 '+(this.device.name||'TITA'),()=>this.device.gatt.connect());
+   const service=await this.stage('查找管理服务',()=>gatt.getPrimaryService('c7252000-5a6b-4c8d-9e0f-123456789abc'));
+   this.command=await this.stage('查找写入特征',()=>service.getCharacteristic('c7252001-5a6b-4c8d-9e0f-123456789abc'));
+   this.response=await this.stage('查找读取特征',()=>service.getCharacteristic('c7252002-5a6b-4c8d-9e0f-123456789abc'));
+   // Read only until encryption is ready. A stalled native read is also bounded.
+   await this.stage('确认蓝牙加密',async()=>{
+    const deadline=Date.now()+30000;let last='蓝牙已断开';
+    while(Date.now()<deadline&&this.device.gatt.connected){
+     try{await this.response.readValue();return;}
+     catch(e){last=e?.message||String(e);await new Promise(r=>setTimeout(r,250));}
+    }
+    throw Error(last);
+   },31000);
+   this.progress('蓝牙已就绪，正在读取设备状态');
+  }catch(e){this.disconnect();throw e;}
+ }
+
+ request(path,method='GET',args={}){
+  const run=()=>this.exchange(path,method,args);const result=this.queue.then(run,run);this.queue=result.catch(()=>{});return result;
+ }
+ async write(bytes){if(this.command.writeValueWithResponse)await this.command.writeValueWithResponse(bytes);else await this.command.writeValue(bytes);}
+ async exchange(path,method,args){
+  if(!this.device?.gatt.connected)throw Error('蓝牙已断开，请重新连接');
+  const id=this.id=this.id%65535+1,header=[id&255,id>>8];
+  const bytes=new TextEncoder().encode(JSON.stringify({key:this.key,path,method,args}));if(bytes.length>4096)throw Error('配置过大，请减少网络项');
+  await this.write(new Uint8Array([0,...header]));
+  for(let at=0;at<bytes.length;at+=17)await this.write(new Uint8Array([1,...header,...bytes.slice(at,at+17)]));
+  await this.write(new Uint8Array([2,...header]));
+  let at=0,all,deadline=Date.now()+60000;
+  while(Date.now()<deadline){
+   await this.write(new Uint8Array([3,...header,at&255,at>>8]));
+   const view=await this.response.readValue();const packet=new Uint8Array(view.buffer,view.byteOffset,view.byteLength);
+   if(!packet.length){await new Promise(r=>setTimeout(r,100));continue;}
+   const part=BleTransport.decode(packet,id,at);if(!all)all=new Uint8Array(part.total);
+   if(all.length!==part.total)throw Error('响应长度改变，请重新读取');all.set(part.bytes,at*14);at++;
+   if(at*14>=all.length)return JSON.parse(new TextDecoder().decode(all));
+  }throw Error('设备回执超时，操作结果未知，请重新读取确认');
+ }
+ disconnect(){this.device?.gatt.disconnect();this.key='';}
+}
+if(typeof module!=='undefined')module.exports={BleTransport};
+</script>
+<script>
+const $=id=>document.getElementById(id);
+let mode='none',tab='system',ble=new BleTransport(),loaded={},selected=0,refreshing=false,wifiDirty=false,lastLink='未知';
+const labels=['系统','车辆','iPhone / 音乐','CarPlay','TITA 本机'];
+function feedback(text){$('feedback').textContent=text;}
+function stale(message){$('updated').textContent='数据过期 / '+message;$('systemfresh').textContent='连接不可用，以下数据已过期';$('connection').textContent=mode==='ble'?'蓝牙断开或响应失败':mode==='http'?'Wi-Fi 响应失败':'未连接';}
+async function api(path,method='GET',args={}){
+ if(mode==='none')throw Error('请先连接 TITA');
+ const result=await ble.request(path,method,args);
+ if(result.status<200||result.status>=300)throw Error(result.body||'操作失败 '+result.status);
+ return method==='GET'?JSON.parse(result.body):result.body;
+}
+async function action(fn){try{feedback('正在提交，等待设备确认…');await fn();}catch(e){feedback(e.message);}}
+function metric(value,unit=''){return typeof value==='number'&&Number.isFinite(value)?value+unit:'--';}
+function cards(id,values){$(id).replaceChildren(...values.map(([label,value])=>{const c=document.createElement('div');c.className='metric';const l=document.createElement('span'),v=document.createElement('strong');l.textContent=label;v.textContent=value;c.append(l,v);return c;}));}
+function raw(id,d){$(id).textContent=JSON.stringify(d,null,2);}
+function fillOnce(group,fn){if(!loaded[group]){fn();loaded[group]=true;}}
+async function status(){const d=await api('/api/status');selected=d.selected_page;lastLink=!d.carplay_link_known?'未知':d.carplay_link_connected?'已连接':'未连接';
+ $('connection').textContent=mode==='ble'?'蓝牙 · 已连接':'Wi-Fi · 已连接';if(mode==='ble')$('connectstatus').textContent='蓝牙管理已连接';$('current').textContent='设备页面 '+(labels[d.current_page]||'未知');$('version').textContent=(d.firmware||'--')+'\n运行分区 '+(d.running_partition||'--')+'\n可用堆 '+metric(d.free_heap,' B')+' / PSRAM '+metric(d.free_psram,' B');
+ $('systemfresh').textContent=d.fresh?'树莓派系统数据实时':'树莓派系统数据已过期或未连接';
+ cards('systemmetrics',[['温度',metric(d.temperature_c,' °C')],['CPU',metric(d.cpu_percent,' %')],['内存',metric(d.memory_percent,' %')],['4G RSRP',metric(d.rsrp_dbm,' dBm')],['4G SINR',metric(d.sinr_db,' dB')],['运行时间',metric(d.uptime_s,' 秒')]]);
+ $('networkdetail').textContent=['Pi 热点 '+(d.ap_ssid||'--')+' / '+(d.ap_ip||'--'),'信道 '+metric(d.ap_channel)+' / 客户端 '+metric(d.ap_clients),'PHY TX / RX '+metric(d.ap_phy_tx_mbps)+' / '+metric(d.ap_phy_rx_mbps)+' Mbps','流量 RX / TX '+metric(d.ap_rx_mbps)+' / '+metric(d.ap_tx_mbps)+' Mbps','以太网 '+(d.ethernet_link===undefined?'未知':d.ethernet_link?'已连接':'未连接')+' / '+(d.ethernet_ip||'--')+' / '+metric(d.ethernet_mbps,' Mbps'),'RSRQ '+metric(d.rsrq_db,' dB')+' / RSSI '+metric(d.rssi_dbm,' dBm'),'热点重传 '+metric(d.ap_retry_s,'/s')+' / 失败 '+metric(d.ap_failed_s,'/s')].join('\n');raw('raw-system',d);
+ $('vehiclesource').textContent=d.vehicle_demo?'DEMO · 模拟数据，并非车辆实测':d.vehicle_fresh?'车辆数据有效；CAN 源新鲜度仍需核验':'车辆数据过期 / 未连接';
+ cards('vehiclemetrics',[['速度',metric(d.speed_kmh,' km/h')],['挡位',d.gear||'--'],['电量',metric(d.soc_percent,' %')],['续航',metric(d.range_km,' km')]]);
+ $('clapstatus').textContent=d.clap_enabled?(d.clap_ready?'已开启 · 就绪':'已开启 · 校准中'):'已关闭';$('micstatus').textContent='采样 '+(d.mic_active?'运行中':'停止')+' / 错误 '+metric(d.mic_error)+'\nAC RMS '+metric(d.mic_ac_rms)+' / 最大 '+metric(d.mic_max_rms);
+ fillOnce('view',()=>{$('brightness').value=d.brightness;$('automatic').checked=d.auto_rotate;$('interval').value=d.rotate_seconds;});
+}
+async function phone(){const d=await api('/api/iphone');$('phonestatus').textContent=(d.connected?'已连接':'未连接')+' / '+(d.encrypted?'已加密':'未加密')+'\n通知 '+(d.ancs_ready?'就绪':'未就绪')+' / 音乐 '+(d.ams_ready?'就绪':'未就绪')+' / 电量 '+metric(d.battery_percent,' %');raw('raw-phone',d);
+ if(!loaded.phone){const c=await api('/api/iphone-settings');fillOnce('phone',()=>{$('notify').checked=c.enabled;$('seconds').value=c.seconds;});}
+ const m=await api('/api/music');$('musicstatus').textContent=(m.title||'--')+'\n'+(m.artist||'--')+'\n封面来源 '+(m.cover||'default')+' / '+(m.direct_status_text||'')+'\nBLE '+(m.bridge_status_text||'--')+' / 律动 '+(m.animation_source||'none');raw('raw-music',m);fillOnce('music',()=>{$('cover').checked=m.online_cover_enabled;});$('upload').disabled=mode!=='http';
+}
+async function cp(){const d=await api('/api/carplay');$('cpstate').textContent='官方会话 '+lastLink+' / '+(d.packet_fresh?'性能采集状态 '+d.state:'性能数据已过期');cards('cpmetrics',[['RENDER FPS',metric(d.fps)],['TX DROP',metric(d.server_tx_drop_percent,' %')],['队列',metric(d.queue,' 帧')],['解码',metric(d.decode_ms,' ms')],['Tesla PHY',metric(d.tesla_phy_mbps,' Mbps')]]);raw('raw-carplay',d);fillOnce('cp',()=>{const s=d.settings;$('arcs').checked=s.arcs;$('trend').checked=s.trend;for(const [id,key] of [['target','target'],['warn','warn_percent'],['bad','bad_percent'],['windows','windows']])$(id).value=s[key];});}
+function networkRow(n={ssid:'',password:'',priority:5}){const row=document.createElement('div');row.className='network';for(const [field,label,type] of [['ssid','网络名称','text'],['password','密码','password'],['priority','优先级','number']]){const l=document.createElement('label'),s=document.createElement('span'),i=document.createElement('input');s.textContent=label;i.dataset.field=field;i.type=field==='password'&&$('showpassword').checked?'text':type;i.value=n[field];if(type==='number'){i.min=1;i.max=10;}i.oninput=()=>{wifiDirty=true;$('wifidirty').textContent='有未保存修改';};l.append(s,i);row.append(l);}const buttons=document.createElement('div');for(const [label,fn] of [['连接',()=>action(async()=>{if(wifiDirty)throw Error('请先保存网络列表');feedback(await api('/wifi/connect','POST',{ssid:row.querySelector('[data-field=ssid]').value}));})],['删除',()=>{row.remove();wifiDirty=true;$('wifidirty').textContent='有未保存修改';}]]){const b=document.createElement('button');b.textContent=label;b.onclick=fn;buttons.append(b);}row.append(buttons);$('networks').append(row);}
+async function wifi(){const d=await api('/api/wifi');$('wifistatus').textContent=d.phase+'\n当前网络 '+(d.ssid||'--')+' / IP '+(d.ip||'--')+'\n管理热点 '+(d.fallback_ap?'开启':'关闭')+' / 互联网可用性未知'+(d.config_error?'\n配置读取异常，请检查并重新保存':'');if(!wifiDirty)fillOnce('wifi',()=>{$('networks').replaceChildren();d.networks.forEach(networkRow);});else if(!loaded.wifi)throw Error('连接已改变，保留了未保存的 Wi-Fi 修改；请刷新页面后重新读取再编辑');}
+function localMetric(n,unit=''){return typeof n==='number'&&Number.isFinite(n)?Math.round(n*10)/10+unit:'--';}
+async function local(){const d=await api('/api/local');
+ $('localnetwork').textContent=(d.wifi_connected?'Wi-Fi '+d.wifi_ssid+' / '+metric(d.wifi_rssi_dbm,' dBm'):'Wi-Fi 未连接')+'\n局域网 IP '+(d.lan_ip||'--')+' / 已保存 '+d.wifi_saved_count+' 个网络\n'+d.wifi_phase+'\n热点 '+(d.ap_enabled?'已开启':'已关闭')+' / '+d.ap_name+'\n热点 IP '+(d.ap_ip||'不可用')+' / 客户端 '+d.ap_clients;
+ $('localurls').textContent='局域网 HTTP：'+(d.lan_http_url||'不可用')+'\n热点 HTTPS：'+(d.ap_https_url||'不可用（热点关闭或 HTTPS 未就绪）');
+ $('localble').textContent='蓝牙名称 '+d.ble_name+'\n广播名称 '+d.ble_advertised_name+'\niPhone '+(d.iphone_connected?'已连接':'未连接')+' / 加密 '+(d.iphone_connected?(d.iphone_encrypted?'是':'否'):'--')+'\n树莓派 '+(d.pi_connected?'已连接':'未连接')+'\n管理连接 '+d.management_connected+' / 已加密 '+d.management_encrypted+' / 已认证 '+d.management_authorized;
+ cards('localmetrics',[['TITA CPU（采样）',localMetric(d.cpu_percent,' %')],['空闲内存',localMetric(d.heap_free_bytes/1024,' KiB')],['最低空闲内存',localMetric(d.heap_min_free_bytes/1024,' KiB')],['空闲 PSRAM',localMetric(d.psram_free_bytes/1024,' KiB')]]);
+ $('localdetails').textContent=d.firmware+' / '+d.running_partition+'\n运行 '+d.uptime_s+' 秒 / 重启原因 '+d.reset_reason+'\n双核 CPU '+d.cpu_core_percent.map(n=>localMetric(n,' %')).join(' / ')+'\n内存总量 '+Math.round(d.heap_total_bytes/1024)+' KiB / PSRAM 总量 '+Math.round(d.psram_total_bytes/1024)+' KiB';raw('raw-local',d);
+}
+async function refresh(){if(refreshing||mode==='none')return;refreshing=true;try{await status();if(tab==='iphone')await phone();if(tab==='carplay')await cp();if(tab==='other')await wifi();if(tab==='local')await local();$('updated').textContent='更新于 '+new Date().toLocaleTimeString();}catch(e){stale(e.message);feedback(e.message);if(mode==='ble')$('connectstatus').textContent='读取设备状态失败：'+e.message;}finally{refreshing=false;}}
+function switchTab(name){tab=name;for(const b of document.querySelectorAll('[data-tab]')){const active=b.dataset.tab===name;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;$(b.dataset.tab).hidden=!active;}refresh();}
+for(const b of document.querySelectorAll('[data-tab]')){b.onclick=()=>switchTab(b.dataset.tab);b.onkeydown=e=>{const tabs=[...document.querySelectorAll('[data-tab]')];let at=tabs.indexOf(b);if(e.key==='ArrowRight')at=(at+1)%tabs.length;else if(e.key==='ArrowLeft')at=(at+tabs.length-1)%tabs.length;else if(e.key==='Home')at=0;else if(e.key==='End')at=tabs.length-1;else return;e.preventDefault();tabs[at].focus();switchTab(tabs[at].dataset.tab);};}
+$('connect').onclick=()=>action(async()=>{if(!$('key').value)throw Error('请输入管理密码');if(!window.isSecureContext)throw Error('蓝牙管理需要 HTTPS 页面');$('connect').disabled=true;try{await ble.connect($('key').value,text=>{$('connection').textContent=text;$('connectstatus').textContent=text;});}catch(e){$('connection').textContent='连接失败';$('connectstatus').textContent=e.message;throw e;}finally{$('connect').disabled=false;}$('key').value='';mode='ble';loaded={};ble.device.addEventListener('gattserverdisconnected',()=>{stale('蓝牙连接已断开');feedback('蓝牙已断开。未收到回执的操作结果未知，请重连后读取确认。');});await refresh();});
+$('disconnect').onclick=()=>{ble.disconnect();mode='none';loaded={};stale('已断开');};
+async function save(path,args){feedback(await api(path,'POST',args));}
+for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>action(async()=>{await save('/view',{page:b.dataset.page,auto:'0',interval:String($('interval').value)});loaded.view=false;await refresh();});
+$('saveview').onclick=()=>action(async()=>{await save('/view',{page:String(selected),auto:$('automatic').checked?'1':'0',interval:$('interval').value});loaded.view=false;await refresh();});
+$('savebrightness').onclick=()=>action(()=>save('/brightness',{value:$('brightness').value}));
+$('openhotspot').onclick=()=>action(async()=>{await save('/wifi/hotspot',{});await refresh();});
+$('reconnect').onclick=()=>action(()=>save('/reconnect',{}));$('pair').onclick=()=>action(()=>save('/iphone/pair',{}));
+$('savephone').onclick=()=>action(async()=>{await save('/iphone/settings',{settings:JSON.stringify({version:1,enabled:$('notify').checked,seconds:Number($('seconds').value)})});loaded.phone=false;await refresh();});
+$('savecover').onclick=()=>action(async()=>{await save('/music/settings',{enabled:$('cover').checked?'1':'0'});loaded.music=false;await refresh();});
+$('savecp').onclick=()=>action(async()=>{await save('/api/carplay-settings',{settings:JSON.stringify({version:1,arcs:$('arcs').checked,trend:$('trend').checked,target:Number($('target').value),warn_percent:Number($('warn').value),bad_percent:Number($('bad').value),windows:Number($('windows').value)})});loaded.cp=false;await refresh();});
+for(const b of document.querySelectorAll('[data-clap]'))b.onclick=()=>action(()=>save('/clap',{action:b.dataset.clap}));for(const b of document.querySelectorAll('[data-mic]'))b.onclick=()=>action(()=>save('/microphone',{action:b.dataset.mic}));
+$('addnetwork').onclick=()=>{if(!loaded.wifi){feedback('请先连接设备并读取原有 Wi-Fi 列表');return;}if($('networks').children.length>=10){feedback('最多 10 个网络');return;}networkRow();wifiDirty=true;$('wifidirty').textContent='有未保存修改';};
+$('showpassword').onchange=()=>{for(const i of document.querySelectorAll('[data-field=password]'))i.type=$('showpassword').checked?'text':'password';};
+$('savewifi').onclick=()=>action(async()=>{if(!loaded.wifi)throw Error('请先连接设备并读取原有 Wi-Fi 列表');const networks=[...$('networks').children].map(r=>{const get=f=>r.querySelector('[data-field='+f+']').value;return {ssid:get('ssid'),password:get('password'),priority:Number(get('priority'))};});await save('/wifi/settings',{settings:JSON.stringify({version:1,networks})});wifiDirty=false;$('wifidirty').textContent='已收到设备保存回执';loaded.wifi=false;await refresh();});
+$('upload').onclick=()=>feedback('封面文件上传请使用 TITA 局域网管理页');
+$('httpshint').textContent='公网 HTTPS · 蓝牙管理 · Web 20261018.1';$('connectpanel').open=true;$('offlineStatus').textContent='使用正常 Wi-Fi 或蜂窝网络打开；无需连接 TITA 热点。重新打开页面需要互联网。';
+setInterval(()=>{if(!document.hidden)refresh();},5000);refresh();
+</script></html>
