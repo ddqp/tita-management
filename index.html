@@ -86,12 +86,23 @@ function decode(s,requestMs=0){
   add(`wheel_${i}_aux`, `轮通道${i}辅助值`,aux,aux,'原码','unknown','P48/P49 / CAN 0x25a；不预设为胎压',aux!==255,r,'轮与通道');
   add(`wheel_${i}_flags`,`轮通道${i}状态位`,(q[1]>>2)&15,(q[1]>>2)&15,'原码','unknown','P49.2..5',true,r,'轮与通道');
  }
+ const updates=[
+  ['座舱估计温度',.1,-40,'°C','0x243 bit30 len11',2047],
+  ['过滤环境温度',.5,-40,'°C','0x321 bit40 len8',255],
+  ['电池最低温度',.5,-40,'°C','0x332 bit24 len8 / mux0',255],
+  ['电池最高温度',.5,-40,'°C','0x332 bit16 len8 / mux0',255],
+  ['选定侧空调设温',.5,15,'°C','0x2f3 bit0或8 len5；左右侧由车型配置决定',31],
+  ['发射器芯片内部温度',1,-10,'°C','temperature_sensor_get_celsius；ROM __addsf3加10.0后转整数，读取值减10（取整）',2047],
+  ['后逆变器电容温度候选',1,-40,'°C','0x315 bit24 len8；固件额外mux条件与DBC有差异',0],
+  ['前逆变器电容温度候选',1,-40,'°C','0x376 bit24 len8；固件额外mux条件与DBC有差异',0]
+ ];
  for(let i=0;i<8;i++){
   const ch=channels.find(x=>x.index===i),r={raw:hex(ch?.raw,2),valid:!!ch?.valid,age_ms:age(ch?.age_ms)},q=r.raw||new Uint8Array(2),raw=(q[0]>>3)|(q[1]&63)<<5;
   if(r.raw&&(q[0]&7)!==i)r.raw=null;
-  if(i>=4&&modeKnown&&r.age_ms!==null)r.age_ms=Math.max(r.age_ms,item.age_ms);
-  (i>=4&&!oldTpms?((key,label,raw,val,unit,source,ok,r,g)=>add(key,label,raw,raw,'原码','unknown',source,ok,r,g)):a)(`channel_${i}`,`更新通道${i} ${i<4?'刹车温度':'轮温'}候选`,raw,raw-40,'°C',i<4?'CAN 0x3fe，DLC5 DBC匹配；DLC>=7待核对':'CAN 0x219，不同DLC布局待核对',raw!==(i<4?1023:255),r,'轮与通道');
+  const [label,scale,offset,unit,source,invalid]=updates[i];
+  add(`channel_${i}`,`通道${i} ${label}`,raw,raw*scale+offset,unit,i===5?'confirmed':'dbc',`P52..53 / S${52+2*i} / ${source}`,raw!==2047&&raw!==invalid,r,'温度与空调');
  }
+
  return {fields,pages:s.pages||[],wheels,channels,generation:s.generation,fresh:live&&age(s.age_ms)!==null&&age(s.age_ms)<3000,age_ms:age(s.age_ms),raw:s};
 }
 const api={decode};if(typeof module!=='undefined')module.exports=api;root.TitaVehicle=api;
@@ -253,7 +264,7 @@ $('addnetwork').onclick=()=>{if(!loaded.wifi){feedback('请先连接设备并读
 $('showpassword').onchange=()=>{for(const i of document.querySelectorAll('[data-field=password]'))i.type=$('showpassword').checked?'text':'password';};
 $('savewifi').onclick=()=>action(async()=>{if(!loaded.wifi)throw Error('请先连接设备并读取原有 Wi-Fi 列表');const networks=[...$('networks').children].map(r=>{const get=f=>r.querySelector('[data-field='+f+']').value;return {ssid:get('ssid'),password:get('password'),priority:Number(get('priority'))};});await save('/wifi/settings',{settings:JSON.stringify({version:1,networks})});wifiDirty=false;$('wifidirty').textContent='已收到设备保存回执';loaded.wifi=false;await refresh();});
 $('upload').onclick=()=>feedback('封面文件上传请使用 TITA 局域网管理页');
-$('httpshint').textContent='公网 HTTPS · 蓝牙管理 · Web 20261018.2';$('connectpanel').open=true;$('offlineStatus').textContent='使用正常 Wi-Fi 或蜂窝网络打开；无需连接 TITA 热点。重新打开页面需要互联网。';
+$('httpshint').textContent='公网 HTTPS · 蓝牙管理 · Web 20261018.3';$('connectpanel').open=true;$('offlineStatus').textContent='使用正常 Wi-Fi 或蜂窝网络打开；无需连接 TITA 热点。重新打开页面需要互联网。';
 document.addEventListener('visibilitychange',()=>{if(document.hidden)vehicleView.stop();else refresh();});
 setInterval(()=>{if(!document.hidden&&tab!=='vehicle')refresh();},5000);refresh();
 </script></html>
